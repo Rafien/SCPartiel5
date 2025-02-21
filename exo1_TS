@@ -1,26 +1,53 @@
 class Package {
-    weight: number;
-    distance: number;
+    private weight: number;
+    private distance: number;
 
     constructor(weight: number, distance: number) {
         this.weight = weight;
         this.distance = distance;
     }
+
+    getWeight() {
+        return this.weight
+    }
+    setWeight(weight : number) {
+        this.weight = weight
+    }
+
+    getDistance() {
+        return this.distance
+    }
+    setDistance(distance : number) {
+        this.distance = distance
+    }
 }
 
-class DeliveryService {
+
+class DiscountCalculator {
+    calcDiscount(customerType, base): number {
+        switch ( customerType) {
+            case "VIP" : return base *= 0.8
+            case "Business": return base *= 0.9 
+            default : return base
+        } 
+        
+    }
+}
+
+class DeliveryServiceCalculator {
     calculateDeliveryPrice(packages: Package[], customerType: string, urgent: boolean): number {
         let total = 0;
+        const discountCalc = new DiscountCalculator()
         for (const pkg of packages) {
-            if (pkg.weight < 0) {
+            if (pkg.getWeight() < 0) {
                 console.log("Invalid weight!");
                 return -1;
             }
 
-            let base = pkg.distance * 0.1;
-            if (pkg.weight > 10) {
+            let base = pkg.getDistance() * 0.1;
+            if (pkg.getWeight() > 10) {
                 base += 5;
-            } else if (pkg.weight > 5) {
+            } else if (pkg.getWeight() > 5) {
                 base += 3;
             }
 
@@ -28,13 +55,10 @@ class DeliveryService {
                 base *= 1.5;
             }
 
-            if (customerType === "VIP") {
-                base *= 0.8;
-            } else if (customerType === "Business") {
-                base *= 0.9;
-            }
+            base = discountCalc.calcDiscount(customerType, base)
+            
 
-            total += base;
+            total += base
         }
 
         if (packages.length > 3) {
@@ -44,8 +68,13 @@ class DeliveryService {
         return total;
     }
 
+    
+}
+
+class PricePrinter {
     printInvoice(packages: Package[], customerType: string): void {
-        const price = this.calculateDeliveryPrice(packages, customerType, false);
+        const deliveryServiceCalculator = new DeliveryServiceCalculator()
+        const price = deliveryServiceCalculator.calculateDeliveryPrice(packages, customerType, false);
         console.log(`Total: ${price}`);
         if (price > 100) {
             console.log("Apply special discount next time!");
